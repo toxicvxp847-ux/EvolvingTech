@@ -36,3 +36,33 @@ async function sendMessageToServer(message) {
   const data = await response.json();
   alert(data.reply);
 }
+const chatButton = document.getElementById('chatButton');
+const chatBox = document.getElementById('chatBox');
+const closeChat = document.getElementById('closeChat');
+const sendMessage = document.getElementById('sendMessage');
+const userInput = document.getElementById('userInput');
+const chatMessages = document.getElementById('chatMessages');
+
+// Toggle chat box
+chatButton.addEventListener('click', () => chatBox.classList.toggle('hidden'));
+closeChat.addEventListener('click', () => chatBox.classList.add('hidden'));
+
+// Send message
+sendMessage.addEventListener('click', () => {
+  const message = userInput.value.trim();
+  if (message === '') return;
+
+  const userMsg = document.createElement('p');
+  userMsg.classList.add('user');
+  userMsg.textContent = `You: ${message}`;
+  chatMessages.appendChild(userMsg);
+  userInput.value = '';
+
+  // Temporary assistant reply (we can connect to AI later)
+  const reply = document.createElement('p');
+  reply.classList.add('system');
+  reply.textContent = "Assistant: That's a great idea! Let's expand on it soon.";
+  chatMessages.appendChild(reply);
+
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+});

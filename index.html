@@ -46,3 +46,21 @@
 </body>
 </html>
 <button onclick="sendMessageToServer('Hello, system!')">Chat</button>
+<!-- Floating Chat Button -->
+<button id="chatButton" class="chat-btn">💬</button>
+
+<!-- Chat Box -->
+<div id="chatBox" class="chat-box hidden">
+  <div class="chat-header">
+    <span>Evolving Tech Assistant</span>
+    <button id="closeChat">✕</button>
+  </div>
+  <div id="chatMessages" class="chat-messages">
+    <p class="system">Hi Mason 👋 — ready to evolve your project?</p>
+  </div>
+  <div class="chat-input">
+    <input id="userInput" type="text" placeholder="Type your idea..." />
+    <button id="sendMessage">Send</button>
+  </div>
+</div>
+
