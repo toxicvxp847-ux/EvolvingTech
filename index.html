@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evolving Tech</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Evolving Tech</h1>
+    </header>
+
+    <nav id="main-menu">
+      <button class="menu-item" data-section="home">Home</button>
+      <button class="menu-item" data-section="about">About</button>
+      <button class="menu-item" data-section="projects">Projects</button>
+      <button class="menu-item" data-section="contact">Contact</button>
+    </nav>
+
+    <main id="content">
+      <div id="home" class="section active">
+        <h2>Welcome to Evolving Tech</h2>
+        <p>This is your personal interactive environment — ready to evolve and grow as we build it together.</p>
+      </div>
+
+      <div id="about" class="section">
+        <h2>About</h2>
+        <p>Evolving Tech is a self-developing workspace we’ll customize and expand step by step.</p>
+      </div>
+
+      <div id="projects" class="section">
+        <h2>Projects</h2>
+        <p>Future tools, apps, and experiments will appear here as we create them.</p>
+      </div>
+
+      <div id="contact" class="section">
+        <h2>Contact</h2>
+        <p>Later we can add forms, links, or integrations here.</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+<button onclick="sendMessageToServer('Hello, system!')">Chat</button>
