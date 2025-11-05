@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,6 +11,7 @@
   <div id="app">
     <header>
       <h1>Evolving Tech</h1>
+      <button id="devModeToggle" class="dev-toggle">💻 Developer Mode</button>
     </header>
 
     <nav id="main-menu">
@@ -22,22 +24,12 @@
     <main id="content">
       <div id="home" class="section active">
         <h2>Welcome to Evolving Tech</h2>
-        <p>This is your personal interactive environment — ready to evolve and grow as we build it together.</p>
-      </div>
-
-      <div id="about" class="section">
-        <h2>About</h2>
-        <p>Evolving Tech is a self-developing workspace we’ll customize and expand step by step.</p>
+        <p>This is your interactive workspace — ready to evolve as we build together.</p>
       </div>
 
       <div id="projects" class="section">
         <h2>Projects</h2>
         <p>Future tools, apps, and experiments will appear here as we create them.</p>
-      </div>
-
-      <div id="contact" class="section">
-        <h2>Contact</h2>
-        <p>Later we can add forms, links, or integrations here.</p>
       </div>
     </main>
   </div>
@@ -60,7 +52,21 @@
     </div>
   </div>
 
+  <!-- Developer Mode Panel -->
+  <div id="devPanel" class="dev-panel hidden">
+    <div class="dev-header">
+      <h3>🧠 Developer Mode</h3>
+      <button id="closeDev">✕</button>
+    </div>
+    <div id="devOutput" class="dev-output">
+      <p class="system">AI code suggestions will appear here...</p>
+    </div>
+    <div class="dev-actions">
+      <button id="applyCode" class="apply-btn">✅ Apply</button>
+      <button id="discardCode" class="discard-btn">🗑️ Discard</button>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
-
