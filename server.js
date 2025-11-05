@@ -1,5 +1,5 @@
-// ==== EVOLVING TECH - SERVER WITH MEMORY ====
-// Mason's Evolving Tech AI — remembers conversations using SQLite!
+// ==== EVOLVING TECH - SERVER.JS ====
+// AI backend with long-term memory + Developer Mode code generation
 
 import express from "express";
 import path from "path";
@@ -13,87 +13,89 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// === Setup ===
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// 🧠 Connect to SQLite database (auto-creates file)
-const db = new Database(path.join(__dirname, "memory.db"));
-
-// Create memory table if it doesn't exist
+// === Database for memory ===
+const db = new Database("memory.db");
 db.prepare(`
   CREATE TABLE IF NOT EXISTS memory (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user TEXT,
-    key TEXT,
-    value TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    info TEXT
   )
 `).run();
 
-// 🌤️ Setup OpenAI client
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+// === OpenAI client ===
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
 });
 
-// ✅ Basic status route
+// === Routes ===
+
+// Quick health check
 app.get("/api/hello", (req, res) => {
-  res.json({ message: "Evolving Tech server is alive with memory!" });
+  res.json({ message: "Evolving Tech AI is online!" });
 });
 
-// 🧠 Save fact or recall memory
-function rememberFact(user, key, value) {
-  db.prepare("INSERT INTO memory (user, key, value) VALUES (?, ?, ?)").run(user, key, value);
-}
-
-function recallMemory(user) {
-  const rows = db.prepare("SELECT key, value FROM memory WHERE user = ? ORDER BY id DESC LIMIT 20").all(user);
-  return rows.map(r => `${r.key}: ${r.value}`).join("\n");
-}
-
-// 💬 Chat endpoint
+// Chat route (main AI logic)
 app.post("/api/chat", async (req, res) => {
   try {
-    const userMessage = req.body.message || "";
-    const user = "Mason";
-
-    // Fetch memory context
-    const memoryContext = recallMemory(user);
-
-    // Detect simple memory statements like "my favorite color is black"
-    const memoryMatch = userMessage.match(/my (.+?) is (.+)/i);
-    if (memoryMatch) {
-      const key = memoryMatch[1].trim();
-      const value = memoryMatch[2].trim();
-      rememberFact(user, key, value);
+    const userMessage = req.body.message?.trim();
+    if (!userMessage) {
+      return res.status(400).json({ reply: "Please send a message." });
     }
 
-    // Compose the system prompt with memory context
+    // Load previous memories for continuity
+    const past = db.prepare("SELECT info FROM memory WHERE user = ? ORDER BY id DESC LIMIT 10").all("Mason");
+    const memoryContext = past.map(row => row.info).join("\n");
+
+    // === Determine if user wants code or just chat ===
     const systemPrompt = `
-You are Evolving Tech AI, Mason's collaborative assistant.
-Your purpose is to help him build, code, and evolve his projects.
-Always recall previous memory facts about Mason to personalize your responses.
-Current known memory facts:
-${memoryContext || "No memories yet."}
+You are the AI assistant of Evolving Tech, a collaborative web workspace.
+You help Mason build and evolve his website safely.
+
+If Mason asks for a design or feature change (like "add a button", "make it dark mode", "add a new section"), 
+generate valid, minimal HTML/CSS/JS code. Include it in JSON format like this:
+{
+  "reply": "Explain what you did or suggest it clearly.",
+  "codeSuggestion": "<the code snippet here>"
+}
+
+If he’s just chatting, reply conversationally as normal without codeSuggestion.
+Remember relevant facts about Mason and his project and store them in memory.
 `;
 
-    // Ask OpenAI for a reply
-    const completion = await client.chat.completions.create({
+    // === Query OpenAI ===
+    const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: userMessage },
+        { role: "user", content: `Past context:\n${memoryContext}\n\nMason says: ${userMessage}` }
       ],
+      response_format: { type: "json_object" }
     });
 
     const reply = completion.choices[0].message.content;
-    res.json({ reply });
+    let parsed = {};
+    try {
+      parsed = JSON.parse(reply);
+    } catch {
+      parsed = { reply: reply };
+    }
+
+    // Save message + memory
+    db.prepare("INSERT INTO memory (user, info) VALUES (?, ?)").run("Mason", `User: ${userMessage} | AI: ${parsed.reply}`);
+
+    res.json(parsed);
   } catch (err) {
     console.error("Chat error:", err);
-    res.status(500).json({ error: "Server error occurred." });
+    res.status(500).json({ reply: "Server error processing AI request." });
   }
 });
 
+// === Start server ===
 app.listen(PORT, () => {
-  console.log(`🚀 Evolving Tech server with memory running at http://localhost:${PORT}`);
+  console.log(`🚀 Evolving Tech AI running at http://localhost:${PORT}`);
 });
